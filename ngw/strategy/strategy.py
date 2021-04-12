@@ -1,7 +1,7 @@
 import datetime
 import traceback
 from queue import Queue
-import ngshare as ng
+import ngwshare as ng
 import time
 import json
 import schedule
