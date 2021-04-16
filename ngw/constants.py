@@ -9,12 +9,13 @@ host = 'stq.niuguwang.com'
 # 主要入库
 
 
-# # ubuntu
+# ubuntu
 # MYSQL_HOST = '192.168.157.129'
 # MYSQL_PORT = 3306
 # MYSQL_DATABASE = 'contract_strategy'
 # MYSQL_USER = 'root'
 # MYSQL_PASSWORD = 'mysql'
+
 
 
 

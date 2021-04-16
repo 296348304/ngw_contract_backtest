@@ -1,6 +1,6 @@
 # import json
 #
-# from ngw_contract_backtest.ngw.constants import REDIS_HOST, REDIS_PORT, REDIS_DB1
+# from ngwcontractbacktest.ngw.constants import REDIS_HOST, REDIS_PORT, REDIS_DB1
 # from redis import StrictRedis
 #
 # def conn_redis():
