@@ -1,7 +1,7 @@
 import datetime
 import time
-from ngwcontractbacktest.ngw.utils.date_util import str2datetime
-from ngwcontractbacktest.ngw.data.data_api import get_hisBar, get_all_hisBar
+from ngw_contract_backtest.ngw.utils.date_util import str2datetime
+from ngw_contract_backtest.ngw.data.data_api import get_hisBar, get_all_hisBar
 
 
 class DataCache(object):

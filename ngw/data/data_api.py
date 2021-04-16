@@ -7,8 +7,8 @@ import time
 import pandas as pd
 import datetime
 import numpy as np
-from ngwcontractbacktest.ngw.constants import host
-from ngwcontractbacktest.ngw.utils.date_util import str2datetime
+from ngw_contract_backtest.ngw.constants import host
+from ngw_contract_backtest.ngw.utils.date_util import str2datetime
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)

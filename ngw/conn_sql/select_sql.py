@@ -2,10 +2,10 @@ import datetime
 import pandas as pd
 import decimal
 
-from ngwcontractbacktest.ngw.utils.date_util import return_last_trading_day
+from ngw_contract_backtest.ngw.utils.date_util import return_last_trading_day
 from pymysql import *
 
-from ngwcontractbacktest.ngw.constants import MYSQL_HOST, MYSQL_PORT, \
+from ngw_contract_backtest.ngw.constants import MYSQL_HOST, MYSQL_PORT, \
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
 
 

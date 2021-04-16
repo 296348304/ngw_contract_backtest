@@ -2,7 +2,7 @@ import random
 import datetime
 import traceback
 from pymysql import *
-from ngwcontractbacktest.ngw.constants import MYSQL_HOST, MYSQL_PORT, \
+from ngw_contract_backtest.ngw.constants import MYSQL_HOST, MYSQL_PORT, \
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
 
 
