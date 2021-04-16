@@ -8,19 +8,19 @@ import schedule
 import threading
 from string import digits
 import matplotlib.pyplot as plt
-from ngw_contract_backtest.ngw.conn_sql.select_sql import get_total_equities, \
+from ngwcontractbacktest.ngw.conn_sql.select_sql import get_total_equities, \
     get_strategyId_stgyId_lastEquity_lastAvailableCash_lastFrozenCash, get_orders, get_positions
-from ngw_contract_backtest.ngw.app_api.common import turn_main_contract
-from ngw_contract_backtest.ngw.report.risk_metrics import calculate, get_win_rate
-from ngw_contract_backtest.ngw.data.cache import DataCache
-from ngw_contract_backtest.ngw.utils.freq_util import freq_1m, freq_1m_sim
-from ngw_contract_backtest.ngw.utils.freq_util import freq_10s_sim
-from ngw_contract_backtest.ngw.utils.date_util import is_trading_day_on_data, str2datetime, return_last_next_tradingDay, \
+from ngwcontractbacktest.ngw.app_api.common import turn_main_contract
+from ngwcontractbacktest.ngw.report.risk_metrics import calculate, get_win_rate
+from ngwcontractbacktest.ngw.data.cache import DataCache
+from ngwcontractbacktest.ngw.utils.freq_util import freq_1m, freq_1m_sim
+from ngwcontractbacktest.ngw.utils.freq_util import freq_10s_sim
+from ngwcontractbacktest.ngw.utils.date_util import is_trading_day_on_data, str2datetime, return_last_next_tradingDay, \
     get_trading_days
-from ngw_contract_backtest.ngw.conn_sql.insert_sql import strategy_basic, insert_performance, insert_values, \
+from ngwcontractbacktest.ngw.conn_sql.insert_sql import strategy_basic, insert_performance, insert_values, \
     insert_position
-# from ngw_contract_backtest.ngw.websocket.websocketClient import WebSocketClient
-from ngw_contract_backtest.ngw.context.context import Context
+# from ngwcontractbacktest.ngw.websocket.websocketClient import WebSocketClient
+from ngwcontractbacktest.ngw.context.context import Context
 import ctypes
 from pylab import *  # 支持中文
 mpl.rcParams['font.sans-serif'] = ['SimHei']

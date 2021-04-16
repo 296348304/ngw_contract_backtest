@@ -1,7 +1,7 @@
 import datetime
 import math
 import ngwshare as ng
-from ngw_contract_backtest.ngw.utils.freq_util import freq_1m
+from ngwcontractbacktest.ngw.utils.freq_util import freq_1m
 
 def str2datetime(str_date):
     if len(str_date) == 10:

@@ -2,10 +2,10 @@ import random
 import time
 from string import digits
 import datetime
-from ngw_contract_backtest.ngw.conn_sql.insert_sql import insert_order
-from ngw_contract_backtest.ngw.data.data_api import get_hisBar, contract_depth, get_price, get_all_hisBar, celery_post
-from ngw_contract_backtest.ngw.app_api.common import turn_main_contract
-from ngw_contract_backtest.ngw.utils.date_util import str2datetime
+from ngwcontractbacktest.ngw.conn_sql.insert_sql import insert_order
+from ngwcontractbacktest.ngw.data.data_api import get_hisBar, contract_depth, get_price, get_all_hisBar, celery_post
+from ngwcontractbacktest.ngw.app_api.common import turn_main_contract
+from ngwcontractbacktest.ngw.utils.date_util import str2datetime
 
 
 class Context(object):
