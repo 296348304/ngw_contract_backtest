@@ -2,8 +2,6 @@ import random
 import time
 from string import digits
 import datetime
-
-from ngw_contract_backtest.ngw.app_api.trace import trace_order
 from ngw_contract_backtest.ngw.conn_sql.insert_sql import insert_order
 from ngw_contract_backtest.ngw.data.data_api import get_hisBar, contract_depth, get_price, get_all_hisBar, celery_post
 from ngw_contract_backtest.ngw.app_api.common import turn_main_contract
@@ -271,9 +269,7 @@ class Context(object):
                 'order': order,
                 'strategy_position': self.positions,
             }
-            trace_order(order=order)
-            # celery_post(post_body)
-
+            celery_post(post_body)
             # send_mq.delay(info=info,order_raw=order,strategy_position=self.positions)
         else:
             insert_order(strategyBasic_id=self.strategyBasic_id, sort=self.sort, order=order, is_toSQL=self.is_toSQL)
@@ -425,9 +421,7 @@ class Context(object):
                 'order': order,
                 'strategy_position': self.positions,
             }
-            trace_order(order=order)
-            # celery_post(post_body)
-
+            celery_post(post_body)
             # send_mq.delay(info=info,order_raw=order,strategy_position=self.positions)
         else:
             insert_order(strategyBasic_id=self.strategyBasic_id, sort=self.sort, order=order, is_toSQL=self.is_toSQL)
@@ -581,9 +575,7 @@ class Context(object):
                 'order': order,
                 'strategy_position': self.positions,
             }
-            trace_order(order=order)
-            # celery_post(post_body)
-
+            celery_post(post_body)
             # send_mq.delay(info=info,order_raw=order,strategy_position=self.positions)
         else:
             insert_order(strategyBasic_id=self.strategyBasic_id, sort=self.sort, order=order, is_toSQL=self.is_toSQL)
@@ -735,9 +727,7 @@ class Context(object):
                 'order': order,
                 'strategy_position': self.positions,
             }
-            trace_order(order=order)
-            # celery_post(post_body)
-
+            celery_post(post_body)
             # send_mq.delay(info=info,order_raw=order,strategy_position=self.positions)
         else:
             insert_order(strategyBasic_id=self.strategyBasic_id, sort=self.sort, order=order, is_toSQL=self.is_toSQL)

@@ -1,5 +1,5 @@
 __author__ = 'wangjian'
-import ngwshare as ng
+import ngshare as ng
 
 def get_name_mv(date, codes_list):
     body = {

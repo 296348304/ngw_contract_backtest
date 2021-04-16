@@ -1,4 +1,4 @@
-import ngwshare as ng
+import ngshare as ng
 __author__ = 'wangjian'
 
 

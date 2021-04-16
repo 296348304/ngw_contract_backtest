@@ -1,7 +1,7 @@
 import datetime
 import traceback
 from queue import Queue
-import ngwshare as ng
+import ngshare as ng
 import time
 import json
 import schedule
@@ -43,7 +43,6 @@ class StrategyRunner():
         self.init_cash = self.info.get('init_cash')
         self.start = self.info.get('start')
         self.end = self.info.get('end')
-        self.is_DayNight = self.info.get('is_DayNight')
         self.d_start = datetime.datetime.strptime(self.start,'%Y-%m-%d %H:%M:%S')
         self.d_end = datetime.datetime.strptime(self.end,'%Y-%m-%d %H:%M:%S')
         self.start_,self.end_ = return_last_next_tradingDay(start=self.start, end=self.end)
@@ -371,12 +370,7 @@ class StrategyRunner():
             self.sim_initialize_()
             # 每天开盘跑
             schedule.every().day.at(self.run_daily_time).do(self.sim_run_daily_)
-
-            if not self.is_DayNight:
-                schedule.every().day.at('08:00:00').do(self.sim_create_universe_)
-            else:
-                schedule.every().day.at('20:00:00').do(self.sim_create_universe_)
-
+            schedule.every().day.at('08:00:00').do(self.sim_create_universe_)
 
             if self.freq_sim == '10s':
                 for t in freq_10s_sim:
@@ -394,8 +388,8 @@ class StrategyRunner():
         # 回测
         else:
             if self._universe:
-                self.run_kline_time()
-                # self.run_util_time()
+                # self.run_kline_time()
+                self.run_util_time()
             else:
                 self.run_util_time()
             # 画图
@@ -450,47 +444,37 @@ class StrategyRunner():
         print('总耗时： ',time.time()-t1)
 
 
-    def run_kline_time(self):
-        self.initialize_()
-        t1 = time.time()
-
-        d_start = self.d_start
-        d_next = self.d_start
-        d_end = self.d_end
-
-        start = int(self.start.replace('-', '').replace(' ', '').replace(':', ''))
-        end = int(self.end.replace('-', '').replace(' ', '').replace(':', ''))
-        df_data = self.cache.data.get(self._universe[0])
-        date_list = df_data.loc[(df_data["time"] >= start) & (df_data["time"] <= end)]["time"].tolist()
-        freq_minute_dict = {'1m':1,'5m':5,'15m':15}
-        min_ = freq_minute_dict[self.freq]
-        date_list = [str(datetime.datetime.strptime(str(i), '%Y%m%d%H%M%S')
-                         + datetime.timedelta(minutes=min_))[:19] for i in date_list]
-
-        day_flag = True
-        for date in date_list:
-            self.context.now_datetime = str(date)[:19]
-
-            if self.is_DayNight and day_flag:
-                self._universe = self.create_universe_()
-                day_flag = False
-
-            # 每天 09:01:00前 create_universe
-            if not self.is_DayNight:
-                if str(date)[11:19] == '09:01:00':
-                    self._universe = self.create_universe_()
-
-            self.handle_data_()
-
-            # 每天 15:00:00后 snapshot
-            if str(date)[11:19] == '15:00:00':
-                self.snapshot(date)
-                if self.is_DayNight:
-                    self._universe = self.create_universe_()
-
-
-        print()
-        print('总耗时： ',time.time()-t1)
+    # def run_kline_time(self):
+    #     self.initialize_()
+    #     t1 = time.time()
+    #
+    #     d_start = self.d_start
+    #     d_next = self.d_start
+    #     d_end = self.d_end
+    #
+    #     start = int(self.start.replace('-', '').replace(' ', '').replace(':', ''))
+    #     end = int(self.end.replace('-', '').replace(' ', '').replace(':', ''))
+    #     df_data = self.cache.data.get(self._universe[0])
+    #     date_list = df_data.loc[(df_data["time"] >= start) & (df_data["time"] <= end)]["time"].tolist()
+    #     freq_minute_dict = {'1m':1,'5m':5,'15m':15}
+    #     min_ = freq_minute_dict[self.freq]
+    #     date_list = [str(datetime.datetime.strptime(str(i), '%Y%m%d%H%M%S')
+    #                      + datetime.timedelta(minutes=min_))[:19] for i in date_list]
+    #
+    #     for date in date_list:
+    #         self.context.now_datetime = str(date)[:19]
+    #         # 每天 09:01:00前 create_universe
+    #         if str(date)[11:19] == '09:01:00':
+    #             self._universe = self.create_universe_()
+    #
+    #         self.handle_data_()
+    #
+    #         # 每天 15:00:00后 snapshot
+    #         if str(date)[11:19] == '15:00:00':
+    #             self.snapshot(date)
+    #
+    #     print()
+    #     print('总耗时： ',time.time()-t1)
 
 
     def run_plot(self):

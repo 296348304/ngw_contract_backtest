@@ -328,11 +328,6 @@ def celery_post(body):
 
 
 
-
-
-
-
-
 if __name__ == '__main__':
     # start = str2datetime('2019-01-01')
     # end = str2datetime('2020-11-01')
