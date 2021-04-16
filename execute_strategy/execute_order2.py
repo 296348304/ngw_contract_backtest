@@ -2,7 +2,7 @@ import pika
 import time
 import datetime
 import json
-import ngshare as ng
+import ngwshare as ng
 
 username = 'lhpt'
 pwd = 'lhpt*1ngwermvo'

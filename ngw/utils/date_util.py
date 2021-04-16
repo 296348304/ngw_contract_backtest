@@ -1,6 +1,6 @@
 import datetime
 import math
-import ngshare as ng
+import ngwshare as ng
 from ngw_contract_backtest.ngw.utils.freq_util import freq_1m
 
 def str2datetime(str_date):

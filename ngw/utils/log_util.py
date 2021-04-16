@@ -11,12 +11,12 @@ logger = logging.getLogger()
 logging.basicConfig(
     level=logging.INFO,
     # filename='/home/wj/Desktop/STQDataApi/web/log/{}.txt'.format(str(datetime.datetime.now().date())),
-    # filename='./log/{}.txt'.format(str(datetime.datetime.now().date())),
+    filename='./log/{}.txt'.format(str(datetime.datetime.now().date())),
 
     # filename='/home/wangjian/software/python3.7/lib/python3.7/site-packages/ngw_contract/log/{}.txt'.format(str(datetime.datetime.now().date())),
 
     # filename='/usr/local/lib/python3.7/site-packages/ngw_contract_backtest/log/{}.txt'.format(str(datetime.datetime.now().date())),
-    filename='C:\\Program Files\\python\\python37\Lib\\site-packages\\ngw_contract_backtest\\log\\{}.txt'.format(str(datetime.datetime.now().date())),
+    # filename='C:\\Program Files\\python\\python37\Lib\\site-packages\\ngw_contract_backtest\\log\\{}.txt'.format(str(datetime.datetime.now().date())),
     # filename='D:\\anaconda\\Lib\\site-packages\\ngw_contract_backtest\\log\\{}.txt'.format(str(datetime.datetime.now().date())),
     filemode='a+',
     format="%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s:%(message)s")
