@@ -313,7 +313,7 @@ def get_price(symbol=None, exchange=None, end=None):
 
 
 def celery_post(body):
-    url = "http://{}/contract/celery_task".format(host)
+    url = "https://{}/contract/celery_task".format(host)
     # print(body)
     try:
         headers = {
