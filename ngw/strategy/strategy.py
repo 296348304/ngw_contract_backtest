@@ -22,10 +22,15 @@ from ngw_contract_backtest.ngw.conn_sql.insert_sql import strategy_basic, insert
 # from ngw_contract_backtest.ngw.websocket.websocketClient import WebSocketClient
 from ngw_contract_backtest.ngw.context.context import Context
 import ctypes
+try:
+    from ngw_contract_backtest.ngw.constants import LOGFLAG
+    if LOGFLAG:
+        from ngw_contract_backtest.ngw.utils.log_util import print
+except:
+    LOGFLAG = False
 from pylab import *  # 支持中文
 mpl.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
-
 
 
 class StrategyRunner():

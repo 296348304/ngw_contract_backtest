@@ -27,6 +27,9 @@ MYSQL_USER = 'tjlh'
 MYSQL_PASSWORD = 'tjXx^Egw3NdnLK'
 
 
+# -----------------------------------------------------------------------------------------
+LOGFLAG = True
+# LOGFLAG = False
 
 
 

@@ -9,6 +9,12 @@ import datetime
 import numpy as np
 from ngw_contract_backtest.ngw.constants import host
 from ngw_contract_backtest.ngw.utils.date_util import str2datetime
+try:
+    from ngw_contract_backtest.ngw.constants import LOGFLAG
+    if LOGFLAG:
+        from ngw_contract_backtest.ngw.utils.log_util import print
+except:
+    LOGFLAG = False
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)

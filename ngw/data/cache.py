@@ -2,7 +2,12 @@ import datetime
 import time
 from ngw_contract_backtest.ngw.utils.date_util import str2datetime
 from ngw_contract_backtest.ngw.data.data_api import get_hisBar, get_all_hisBar
-
+try:
+    from ngw_contract_backtest.ngw.constants import LOGFLAG
+    if LOGFLAG:
+        from ngw_contract_backtest.ngw.utils.log_util import print
+except:
+    LOGFLAG = False
 
 class DataCache(object):
     def __init__(self,start,end,freq,universe):

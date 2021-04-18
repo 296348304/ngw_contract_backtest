@@ -1,45 +1,32 @@
 # 日志输出到文件
 import logging
-import datetime
-
+import os
 logger = logging.getLogger()
-# import os
-# path_dir = os.path.dirname(os.path.realpath(__file__))
-# print(path_dir)
+dirs = '/home/admin/logs/ngw_contract_backtest/'
+if not os.path.exists(dirs):
+    os.makedirs(dirs)
 
 # a 追加   w 覆盖
 logging.basicConfig(
     level=logging.INFO,
-    # filename='/home/wj/Desktop/STQDataApi/web/log/{}.txt'.format(str(datetime.datetime.now().date())),
-    filename='./log/{}.txt'.format(str(datetime.datetime.now().date())),
-
-    # filename='/home/wangjian/software/python3.7/lib/python3.7/site-packages/ngw_contract/log/{}.txt'.format(str(datetime.datetime.now().date())),
-
-    # filename='/usr/local/lib/python3.7/site-packages/ngw_contract_backtest/log/{}.txt'.format(str(datetime.datetime.now().date())),
-    # filename='C:\\Program Files\\python\\python37\Lib\\site-packages\\ngw_contract_backtest\\log\\{}.txt'.format(str(datetime.datetime.now().date())),
-    # filename='D:\\anaconda\\Lib\\site-packages\\ngw_contract_backtest\\log\\{}.txt'.format(str(datetime.datetime.now().date())),
+    filename='/home/admin/logs/ngw_contract_backtest/ngw_contract_backtest.log',
     filemode='a+',
     format="%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s:%(message)s")
 
-if __name__ == '__main__':
-    def print(message1=None,message2=None,message3=None,message4=None):
-        str1 = ''
-        if message1:
-            str1 = str(message1)
-        if message2:
-            str1 = str(message1)+str(message2)
-        if message3:
-            str1 = str(message1)+str(message2)+str(message3)
-        if message4:
-            str1 = str(message1)+str(message2)+str(message3)+str(message4)
-        logger.info(str1)
+
+def print(message1=None, message2=None, message3=None, message4=None, message5=None, message6=None, message7=None,
+          message8=None, message9=None, message10=None, message11=None, message12=None, message13=None, message14=None,
+          flush=None, end=None,sep=None):
+    str_all = ''
+    ms_list = [message1,message2,message3,message4,message5,message6,
+               message7,message8,message9,message10,message11,message12,
+               message13,message14]
+    for i in ms_list:
+        if isinstance(i,pd.DataFrame):
+            str1 = str(i)
+        else:
+            str1 = str(i) if i else ''
+        str_all += str1
+    logger.info(str_all)
 
 
-    # logger.debug('11111111111..........')
-    # logger.info('222222222.............')
-    # logger.warning('333333333...........')
-    # logger.error('44444444444..............')
-    # logger.critical('55555555555............')
-
-    print([1,32,1], "%s只股票没检索到行业名称" % len([0,21,123]))
-    print('asdasd')

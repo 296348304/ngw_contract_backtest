@@ -6,7 +6,12 @@ import pandas as pd
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
-
+try:
+    from ngw_contract_backtest.ngw.constants import LOGFLAG
+    if LOGFLAG:
+        from ngw_contract_backtest.ngw.utils.log_util import print
+except:
+    LOGFLAG = False
 
 def exchange2num(exchange):
     if exchange is None:

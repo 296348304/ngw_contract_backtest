@@ -6,7 +6,12 @@ from ngw_contract_backtest.ngw.conn_sql.insert_sql import insert_order
 from ngw_contract_backtest.ngw.data.data_api import get_hisBar, contract_depth, get_price, get_all_hisBar, celery_post
 from ngw_contract_backtest.ngw.app_api.common import turn_main_contract
 from ngw_contract_backtest.ngw.utils.date_util import str2datetime
-
+try:
+    from ngw_contract_backtest.ngw.constants import LOGFLAG
+    if LOGFLAG:
+        from ngw_contract_backtest.ngw.utils.log_util import print
+except:
+    LOGFLAG = False
 
 class Context(object):
     def __init__(self, info=None):
