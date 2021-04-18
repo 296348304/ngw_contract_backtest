@@ -1,5 +1,6 @@
 # 日志输出到文件
 import logging
+import pandas as pd
 import os
 logger = logging.getLogger()
 dirs = '/home/admin/logs/ngw_contract_backtest/'
