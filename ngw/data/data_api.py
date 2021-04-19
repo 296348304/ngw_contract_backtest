@@ -127,6 +127,17 @@ def get_hisBar(symbol=None, exchange=None, freq=None, start=None, end=None, coun
         time.sleep(0.01)
         continue
 
+"""
+1m  480根*15天
+5m
+15m
+30m
+60m
+1d
+1week
+1month
+"""
+
 def get_all_hisBar(symbol=None, exchange=None, freq=None, start=None, end=None, count=None):
     # print(symbol, exchange, freq, start, end)
     if start and end and not count:
@@ -135,11 +146,17 @@ def get_all_hisBar(symbol=None, exchange=None, freq=None, start=None, end=None, 
         diff = end - start_
         diff_days = diff.days
 
+        days_dict = {'1m':10,'5m':50,'15m':150,'30m':300,'60m':600,'1d':600,'1w':600}
+        try:
+            days = days_dict.get(freq)
+        except:
+            days = 100
+
         all_pd_data = pd.DataFrame()
-        if diff_days >= 150:
-            run_times = math.ceil(diff_days / 150)
+        if diff_days >= days:
+            run_times = math.ceil(diff_days / days)
             for i in range(run_times):
-                end_temp = start_ + datetime.timedelta(days=150)
+                end_temp = start_ + datetime.timedelta(days=days)
                 if end_temp >= end:
                     data = get_hisBar(symbol=symbol, exchange=exchange, freq=freq, start=str(start_)[:19],end=str(end)[:19])
                     all_pd_data = all_pd_data.append(data)
@@ -147,9 +164,11 @@ def get_all_hisBar(symbol=None, exchange=None, freq=None, start=None, end=None, 
                 data = get_hisBar(symbol=symbol, exchange=exchange, freq=freq, start=str(start_)[:19],end=str(end_temp)[:19])
                 all_pd_data = all_pd_data.append(data)
                 start_ = end_temp
+                # print(i)
         else:
             return get_hisBar(symbol=symbol, exchange=exchange, freq=freq, start=str(start)[:19], end=str(end)[:19])
         return all_pd_data.reset_index(drop=True)
+
     else:
         return get_hisBar(symbol=symbol, exchange=exchange, freq=freq, start=start, end=end, count=count)
 
@@ -331,6 +350,38 @@ def celery_post(body):
         data = response_json.get('data')
         return data
 
+
+
+
+
+
+
+# 根据合约类别获取交易时间
+def get_TradeDatetime(variety=None,start=None,end=None):
+    start_ = str(str2datetime(start))[:19].replace('-', '').replace(':', '').replace(' ', '')
+    end_ = str(str2datetime(end)+datetime.timedelta(days=1))[:19].replace('-', '').replace(':', '').replace(' ', '')
+    body = {'varietyCode': variety,'begin': int(start_),'end': int(end_)}
+    # print(json.dumps(body))
+    try:
+        url = "https://apigateway.inquantstudio.com/api/BasicData/GetOpenTimesByCode"
+        # url = "https://dev-apigateway.inquantstudio.com/api/BasicData/GetOpenTimesByCode"
+        headers = {'User-Agent': "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6",
+                   "Content-Type": "application/json"}
+        response = requests.post(url, data=json.dumps(body),headers=headers)
+        response.close()
+    except Exception:
+        print(traceback.format_exc())
+    else:
+        try:
+            response_json = json.loads(response.content.decode())
+            # print(response_json)
+            if response_json.get('error_no') == 0:
+                # return pd.DataFrame(response_json.get('data'))
+                return response_json.get('data')
+            else:
+                return response_json.get('error_info')
+        except:
+            print(traceback.format_exc())
 
 
 

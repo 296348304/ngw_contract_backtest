@@ -3,14 +3,14 @@ import logging
 import pandas as pd
 import os
 logger = logging.getLogger()
-dirs = '/home/admin/logs/ngw_contract_backtest/'
+dirs = '/home/admin/logs/'
 if not os.path.exists(dirs):
     os.makedirs(dirs)
 
 # a 追加   w 覆盖
 logging.basicConfig(
     level=logging.INFO,
-    filename='/home/admin/logs/ngw_contract_backtest/ngw_contract_backtest.log',
+    filename='/home/admin/logs/ngw_contract_backtest.log',
     filemode='a+',
     format="%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s:%(message)s")
 

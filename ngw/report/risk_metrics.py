@@ -236,7 +236,7 @@ def get_win_rate(orders=None):
     return win_rate
 
 
-def calculate(dates, st_values, equitiesNoComm):
+def calculate(dates=None, st_values=None, equitiesNoComm=None):
     daily_earning = get_daily_earning(st_values)
     daily_return = get_daily_return(st_values)
     max_drawdown, start, end = get_max_drawdown(dates, st_values)
@@ -249,7 +249,10 @@ def calculate(dates, st_values, equitiesNoComm):
     st_acc_return_ = round(st_acc_returns,4) if st_acc_returns else None
     # 计算日胜率 扣手续费之前 扣手续费之后
     daily_rate_after = get_daily_rate(st_values)
-    daily_rate_before = get_daily_rate(equitiesNoComm)
+    if equitiesNoComm:
+        daily_rate_before = get_daily_rate(equitiesNoComm)
+    else:
+        daily_rate_before = 0
 
     data_ = {
         'st_d_return_value':daily_earning,
@@ -267,6 +270,8 @@ def calculate(dates, st_values, equitiesNoComm):
 
 
 if __name__ == '__main__':
+    from pprint import pprint
+
     dates = ['2020-01-02', '2020-01-03', '2020-01-06', '2020-01-07', '2020-01-08', '2020-01-09', '2020-01-10', '2020-01-13',
      '2020-01-14', '2020-01-15', '2020-01-16', '2020-01-17', '2020-01-20', '2020-01-21', '2020-01-22', '2020-01-23',
      '2020-02-03', '2020-02-04', '2020-02-05', '2020-02-06', '2020-02-07', '2020-02-10', '2020-02-11', '2020-02-12',
@@ -294,14 +299,23 @@ if __name__ == '__main__':
      2584843.0, 2623417.0, 2715309.0, 2699208.0, 2670905.0, 2633009.0]
 
 
-    # performace = calculate(dates, st_values)
-    # print()
+    performace = calculate(dates, st_values)
+    pprint(performace)
+
+    a = (st_values[-1] / st_values[0]) - 1
+    a = round(a, 4)
+    print(a)
+
+    print(len(st_values))
+    b = (a/len(st_values))*250
+    print(b)
+
 
     # a = get_daily_rate(st_values)
     # print(a)
 
 
-    get_win_rate(orders=None)
+    # get_win_rate(orders=None)
 
 
 

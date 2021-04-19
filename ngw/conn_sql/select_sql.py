@@ -7,7 +7,12 @@ from pymysql import *
 
 from ngw_contract_backtest.ngw.constants import MYSQL_HOST, MYSQL_PORT, \
     MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
-
+try:
+    from ngw_contract_backtest.ngw.constants import LOGFLAG
+    if LOGFLAG:
+        from ngw_contract_backtest.ngw.utils.log_util import print
+except:
+    LOGFLAG = False
 
 def conn_mysql(sql=None):
     conn = connect(host=MYSQL_HOST, port=MYSQL_PORT, user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DATABASE,

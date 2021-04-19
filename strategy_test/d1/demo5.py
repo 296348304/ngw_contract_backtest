@@ -48,13 +48,13 @@ def handle_data(context):
                 order_id = context.close_long(symbol_exchange=context.universe, price=price, volume=3)
                 context.close_times += 1
 
-        positions = context.get_positions()
-        print(positions)
-        cash = context.get_cash()
-        print('cash： ', cash)
-        equity = context.get_equity()
-        print('总资产： ', equity)
-        print()
+    positions = context.get_positions()
+    print(positions)
+    cash = context.get_cash()
+    print('cash： ', cash)
+    equity = context.get_equity()
+    print('总资产： ', equity)
+    print()
 
 
 

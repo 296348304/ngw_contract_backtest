@@ -8,6 +8,8 @@ import schedule
 import threading
 from string import digits
 import matplotlib.pyplot as plt
+from ngw_contract_backtest.ngw.data.data_api import get_TradeDatetime
+from ngw_contract_backtest.ngw.utils.data_util import get_variety_code, isin_TradeDatetimeList
 from ngw_contract_backtest.ngw.conn_sql.select_sql import get_total_equities, \
     get_strategyId_stgyId_lastEquity_lastAvailableCash_lastFrozenCash, get_orders, get_positions
 from ngw_contract_backtest.ngw.app_api.common import turn_main_contract
@@ -16,21 +18,16 @@ from ngw_contract_backtest.ngw.data.cache import DataCache
 from ngw_contract_backtest.ngw.utils.freq_util import freq_1m, freq_1m_sim
 from ngw_contract_backtest.ngw.utils.freq_util import freq_10s_sim
 from ngw_contract_backtest.ngw.utils.date_util import is_trading_day_on_data, str2datetime, return_last_next_tradingDay, \
-    get_trading_days
+    get_trading_days, return_last_trading_day, return_next_trading_day
 from ngw_contract_backtest.ngw.conn_sql.insert_sql import strategy_basic, insert_performance, insert_values, \
     insert_position
 # from ngw_contract_backtest.ngw.websocket.websocketClient import WebSocketClient
 from ngw_contract_backtest.ngw.context.context import Context
 import ctypes
-try:
-    from ngw_contract_backtest.ngw.constants import LOGFLAG
-    if LOGFLAG:
-        from ngw_contract_backtest.ngw.utils.log_util import print
-except:
-    LOGFLAG = False
 from pylab import *  # 支持中文
 mpl.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
+
 
 
 class StrategyRunner():
@@ -48,6 +45,7 @@ class StrategyRunner():
         self.init_cash = self.info.get('init_cash')
         self.start = self.info.get('start')
         self.end = self.info.get('end')
+        self.is_DayNight = self.info.get('is_DayNight')  # True 夜盘   False 无夜盘
         self.d_start = datetime.datetime.strptime(self.start,'%Y-%m-%d %H:%M:%S')
         self.d_end = datetime.datetime.strptime(self.end,'%Y-%m-%d %H:%M:%S')
         self.start_,self.end_ = return_last_next_tradingDay(start=self.start, end=self.end)
@@ -60,6 +58,7 @@ class StrategyRunner():
         self.is_toSQL = self.info.get('is_toSQL')
         self.is_simulate = True if self.info.get('is_simulate') else False
         self._universe = self.info.get('universe')
+        self._variety = get_variety_code(self._universe[0])
         self.is_fixed = self.info.get('is_fixed')
 
         self.stgyId = None
@@ -75,7 +74,6 @@ class StrategyRunner():
         self.dates = []
         self.equities = []
         self.equitiesNoComm = []
-
 
     def get_marginRatios_Lots(self,_universe):
         universe_lots = {}
@@ -224,6 +222,8 @@ class StrategyRunner():
     # ===============================================================================================
     def sim_initialize_(self):
         try:
+            t_datetime = str(datetime.datetime.now())[:19]
+            self.context.now_datetime = t_datetime
             print('{} sim_initialize_'.format(str(datetime.datetime.now())))
             data_ = get_strategyId_stgyId_lastEquity_lastAvailableCash_lastFrozenCash(name=self.name)
             print(data_)
@@ -245,6 +245,8 @@ class StrategyRunner():
 
             self.initialize(self.context)
 
+            # 2021-03-02新加，update positions
+            self.context.positions = get_positions(strategyBasic_id=self.strategyBasic_id)
             # 修复
             if self.is_fixed:
                 self.sim_create_universe_()
@@ -254,6 +256,8 @@ class StrategyRunner():
     def sim_create_universe_(self):
         if is_trading_day_on_data(datetime.datetime.now(), self.trading_days):
             try:
+                t_datetime = str(datetime.datetime.now())[:19]
+                self.context.now_datetime = t_datetime
                 print('{} sim_create_universe_'.format(str(datetime.datetime.now())))
                 _universe = self.create_universe(self.context)
                 if _universe:
@@ -265,8 +269,16 @@ class StrategyRunner():
                 self.context.all_varieties = self.all_varieties = details_data[3]
                 self.context.all_margin_ratios = self.all_margin_ratios = details_data[4]
 
-                # 2021-03-02新加，update positions
+                # 2021-03-02 新加，update positions
                 self.context.positions = get_positions(strategyBasic_id=self.strategyBasic_id)
+
+                if self.is_DayNight:
+                    # 2021-04-19 新加：添加品种交易日历
+                    ld = return_last_trading_day(data=self.trading_days)
+                    l2d = str(str2datetime(ld) - datetime.timedelta(days=2))[:10]
+                    nd = return_next_trading_day(data=self.trading_days)
+                    n2d = str(str2datetime(ld) + datetime.timedelta(days=2))[:10]
+                    self.context.TradeDatetimeList = get_TradeDatetime(variety=self._variety, start=l2d, end=n2d)
             except:
                 print(traceback.format_exc())
         else:
@@ -277,6 +289,8 @@ class StrategyRunner():
         if is_trading_day_on_data(datetime.datetime.now(), self.trading_days):
             try:
                 if self.run_daily:
+                    t_datetime = str(datetime.datetime.now())[:19]
+                    self.context.now_datetime = t_datetime
                     print('{} run_daily_'.format(str(datetime.datetime.now())))
                     self.run_daily(self.context)
             except:
@@ -299,6 +313,26 @@ class StrategyRunner():
                 print(traceback.format_exc())
         else:
             print('{} today is not trading day. sim_handle_data_'.format(str(datetime.datetime.now())[:19]))
+
+
+
+    def sim_night_handle_data_(self, t_time):
+        t_datetime = str(datetime.datetime.now())[:10] + ' ' + t_time
+        if isin_TradeDatetimeList(datetimeStr=t_datetime, TradeDatetimeList=self.context.TradeDatetimeList):
+            try:
+                print('{} sim_handle_data_'.format(str(datetime.datetime.now())))
+                # t_datetime = str(datetime.datetime.now())[:10] + ' ' + t_time
+                self.context.now_datetime = t_datetime
+                # 每根bar前:1.更新available_cash 2.检查 是否要强平
+                self.context.update_available_cash()
+                self.context.check_is_force_position()
+                self.handle_data(self.context)
+            except:
+                print(traceback.format_exc())
+        else:
+            print('{} today is not trading day. sim_night_handle_data_'.format(str(datetime.datetime.now())[:19]))
+
+
 
     def sim_snapshot(self):
         if is_trading_day_on_data(datetime.datetime.now(), self.trading_days):
@@ -375,14 +409,28 @@ class StrategyRunner():
             self.sim_initialize_()
             # 每天开盘跑
             schedule.every().day.at(self.run_daily_time).do(self.sim_run_daily_)
-            schedule.every().day.at('08:00:00').do(self.sim_create_universe_)
 
-            if self.freq_sim == '10s':
-                for t in freq_10s_sim:
-                    schedule.every().day.at(t).do(self.sim_handle_data_, t)
+            # create_universe 根据是否有夜盘选择晚上或早上8点跑
+            if self.is_DayNight:
+                schedule.every().day.at('20:00:00').do(self.sim_create_universe_)
             else:
-                for t in freq_1m_sim:
-                    schedule.every().day.at(t).do(self.sim_handle_data_, t)
+                schedule.every().day.at('08:00:00').do(self.sim_create_universe_)
+
+            # sim_handle_data_
+            if self.is_DayNight:
+                if self.freq_sim == '10s':
+                    for t in freq_10s_sim:
+                        schedule.every().day.at(t).do(self.sim_night_handle_data_, t)
+                else:
+                    for t in freq_1m_sim:
+                        schedule.every().day.at(t).do(self.sim_handle_data_, t)
+            else:
+                if self.freq_sim == '10s':
+                    for t in freq_10s_sim:
+                        schedule.every().day.at(t).do(self.sim_handle_data_, t)
+                else:
+                    for t in freq_1m_sim:
+                        schedule.every().day.at(t).do(self.sim_handle_data_, t)
 
             # 打快照
             schedule.every().day.at('15:05:00').do(self.sim_snapshot)
@@ -393,8 +441,8 @@ class StrategyRunner():
         # 回测
         else:
             if self._universe:
-                # self.run_kline_time()
-                self.run_util_time()
+                self.run_kline_time()   # K线时间 驱动
+                # self.run_util_time()  # 固定时间 驱动
             else:
                 self.run_util_time()
             # 画图
@@ -449,37 +497,47 @@ class StrategyRunner():
         print('总耗时： ',time.time()-t1)
 
 
-    # def run_kline_time(self):
-    #     self.initialize_()
-    #     t1 = time.time()
-    #
-    #     d_start = self.d_start
-    #     d_next = self.d_start
-    #     d_end = self.d_end
-    #
-    #     start = int(self.start.replace('-', '').replace(' ', '').replace(':', ''))
-    #     end = int(self.end.replace('-', '').replace(' ', '').replace(':', ''))
-    #     df_data = self.cache.data.get(self._universe[0])
-    #     date_list = df_data.loc[(df_data["time"] >= start) & (df_data["time"] <= end)]["time"].tolist()
-    #     freq_minute_dict = {'1m':1,'5m':5,'15m':15}
-    #     min_ = freq_minute_dict[self.freq]
-    #     date_list = [str(datetime.datetime.strptime(str(i), '%Y%m%d%H%M%S')
-    #                      + datetime.timedelta(minutes=min_))[:19] for i in date_list]
-    #
-    #     for date in date_list:
-    #         self.context.now_datetime = str(date)[:19]
-    #         # 每天 09:01:00前 create_universe
-    #         if str(date)[11:19] == '09:01:00':
-    #             self._universe = self.create_universe_()
-    #
-    #         self.handle_data_()
-    #
-    #         # 每天 15:00:00后 snapshot
-    #         if str(date)[11:19] == '15:00:00':
-    #             self.snapshot(date)
-    #
-    #     print()
-    #     print('总耗时： ',time.time()-t1)
+    def run_kline_time(self):
+        self.initialize_()
+        t1 = time.time()
+
+        d_start = self.d_start
+        d_next = self.d_start
+        d_end = self.d_end
+
+        start = int(self.start.replace('-', '').replace(' ', '').replace(':', ''))
+        end = int(self.end.replace('-', '').replace(' ', '').replace(':', ''))
+        df_data = self.cache.data.get(self._universe[0])
+        date_list = df_data.loc[(df_data["time"] >= start) & (df_data["time"] <= end)]["time"].tolist()
+        freq_minute_dict = {'1m':1,'5m':5,'15m':15}
+        min_ = freq_minute_dict[self.freq]
+        date_list = [str(datetime.datetime.strptime(str(i), '%Y%m%d%H%M%S')
+                         + datetime.timedelta(minutes=min_))[:19] for i in date_list]
+
+        day_flag = True
+        for date in date_list:
+            self.context.now_datetime = str(date)[:19]
+
+            if self.is_DayNight and day_flag:
+                self._universe = self.create_universe_()
+                day_flag = False
+
+            # 每天 09:01:00前 create_universe
+            if not self.is_DayNight:
+                if str(date)[11:19] == '09:01:00':
+                    self._universe = self.create_universe_()
+
+            self.handle_data_()
+
+            # 每天 15:00:00后 snapshot
+            if str(date)[11:19] == '15:00:00':
+                self.snapshot(date)
+                if self.is_DayNight:
+                    self._universe = self.create_universe_()
+
+
+        print()
+        print('总耗时： ',time.time()-t1)
 
 
     def run_plot(self):
@@ -493,6 +551,8 @@ class StrategyRunner():
         print(len(self.equities),self.equities)
         risk_ = calculate(self.dates, self.equities, self.equitiesNoComm)
         win_rate = get_win_rate(list(self.context.orders.values()))
+        st_year_return = round((risk_['st_acc_return_']/len(self.equities))*250, 4)
+        print('年收益率：     ', str(risk_['st_annualized']))
         print('年化收益率：     ', str(risk_['st_annualized']))
         print('策略收益率：     ', str(risk_['st_acc_return_']))
         print('volatility：  ', str(risk_['volatility']))

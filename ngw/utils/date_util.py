@@ -1,9 +1,13 @@
 import datetime
 import math
 import ngwshare as ng
+import pandas as pd
 from ngw_contract_backtest.ngw.utils.freq_util import freq_1m
 
 def str2datetime(str_date):
+    str_date = str(str_date)
+    if len(str_date) == 8:
+        return datetime.datetime.strptime(str_date, '%Y%m%d')
     if len(str_date) == 10:
         return datetime.datetime.strptime(str_date, '%Y-%m-%d')
     elif len(str_date) == 19:
@@ -13,6 +17,10 @@ def str2datetime(str_date):
     elif len(str_date) == 28:
         str_date = str_date.split('+')[0]
         return datetime.datetime.strptime(str_date, '%Y-%m-%dT%H:%M:%S.%f')
+    elif len(str_date) == 14:
+        return datetime.datetime.strptime(str_date, '%Y%m%d%H%M%S')
+    elif len(str_date) == 8:
+        return datetime.datetime.strptime(str_date, '%Y%m%d')
 
 
 
@@ -22,7 +30,7 @@ def get_trading_days():
         "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
         "alterField": 'TradingDate',
         "startDate": '2017-01-01',
-        "endDate": '2022-01-01'
+        "endDate": '2024-01-01'
     }
     data = ng.get_fromDate(body)
     return data
@@ -38,16 +46,17 @@ def is_trading_day_on_data(date,data):
     else:
         return False
 
-def is_trading_day(date):
-    date = str(date)[:10]+' 00:00:00'
-    body = {
-            "table": 'QT_TradingDayNew',
-            "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
-            "alterField": 'TradingDate',
-            "startDate": '2017-01-01',
-            "endDate": '2022-01-01'
-    }
-    data = ng.get_fromDate(body)
+def is_trading_day(date=None, data=pd.DataFrame()):
+    if data.empty:
+        date = str(date)[:10]+' 00:00:00'
+        body = {
+                "table": 'QT_TradingDayNew',
+                "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
+                "alterField": 'TradingDate',
+                "startDate": '2017-01-01',
+                "endDate": '2024-01-01'
+        }
+        data = ng.get_fromDate(body)
     data = data.loc[data.SecuMarket==83].drop('SecuMarket',axis=1)
     # print(data)
     flag = data.loc[data.TradingDate==date].IfTradingDay.values[0]
@@ -57,7 +66,7 @@ def is_trading_day(date):
         return False
 
 
-def return_last_trading_day(date=None):
+def return_last_trading_day(date=None, data=pd.DataFrame()):
     if date:
         if isinstance(date,str):
             if len(date) == 10:
@@ -73,14 +82,15 @@ def return_last_trading_day(date=None):
     else:
         now_date = datetime.datetime.now()
 
-    body = {
-            "table": 'QT_TradingDayNew',
-            "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
-            "alterField": 'TradingDate',
-            "startDate": '2018-01-01',
-            "endDate": '2023-01-01'
-    }
-    data = ng.get_fromDate(body)
+    if data.empty:
+        body = {
+                "table": 'QT_TradingDayNew',
+                "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
+                "alterField": 'TradingDate',
+                "startDate": '2018-01-01',
+                "endDate": '2024-01-01'
+        }
+        data = ng.get_fromDate(body)
     data = data.loc[data.SecuMarket==83].drop('SecuMarket',axis=1)
     # print(data)
 
@@ -95,7 +105,7 @@ def return_last_trading_day(date=None):
                 continue
 
 
-def return_next_trading_day(date=None):
+def return_next_trading_day(date=None, data=pd.DataFrame()):
     if date:
         if isinstance(date,str):
             if len(date) == 10:
@@ -111,14 +121,15 @@ def return_next_trading_day(date=None):
     else:
         now_date = datetime.datetime.now()
 
-    body = {
-            "table": 'QT_TradingDayNew',
-            "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
-            "alterField": 'TradingDate',
-            "startDate": '2018-01-01',
-            "endDate": '2022-01-01'
-    }
-    data = ng.get_fromDate(body)
+    if data.empty:
+        body = {
+                "table": 'QT_TradingDayNew',
+                "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
+                "alterField": 'TradingDate',
+                "startDate": '2018-01-01',
+                "endDate": '2024-01-01'
+        }
+        data = ng.get_fromDate(body)
     data = data.loc[data.SecuMarket==83].drop('SecuMarket',axis=1)
 
     while True:
@@ -144,7 +155,7 @@ def return_last_next_tradingDay(start=None,end=None):
             "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
             "alterField": 'TradingDate',
             "startDate": '2018-01-01',
-            "endDate": '2022-01-01'
+            "endDate": '2024-01-01'
     }
     data = ng.get_fromDate(body)
     data = data.loc[data.SecuMarket==83].drop('SecuMarket',axis=1)
@@ -183,14 +194,35 @@ def return_last_next(type,date,data,time):
 
 
 if __name__ == '__main__':
-    start = str2datetime('2019-01-01')
-    end = str2datetime('2020-11-01')
-    print(start)
-    print(end)
-    diff = end-start
+    import time
+    data = get_trading_days()
 
-    a = return_last_trading_day(date=None)
-    print(a)
+    t11 = time.time()
+
+    ld = return_last_trading_day(data=data)
+    nd = return_next_trading_day(data=data)
+
+    print(ld)
+    print(nd)
+
+
+    # data = get_TradeDatetime(variety='ag', start='2021-04-08', end='2021-05-13')
+    # print(data)
+
+
+    print(time.time()-t11)
+
+
+
+
+    # start = str2datetime('2019-01-01')
+    # end = str2datetime('2020-11-01')
+    # print(start)
+    # print(end)
+    # diff = end-start
+    #
+    # a = return_last_trading_day(date=None)
+    # print(a)
 
 
 
@@ -217,7 +249,7 @@ if __name__ == '__main__':
     #         "field_list": ['TradingDate', 'IfTradingDay', 'SecuMarket'],
     #         "alterField": 'TradingDate',
     #         "startDate": '2017-01-01',
-    #         "endDate": '2022-01-01'
+    #         "endDate": '2024-01-01'
     # }
     # data1 = ng.get_fromDate(body)
 
